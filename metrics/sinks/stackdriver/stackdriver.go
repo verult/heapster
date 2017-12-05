@@ -447,6 +447,7 @@ func (sink *StackdriverSink) LegacyTranslateLabeledMetric(timestamp time.Time, l
 		ts := legacyCreateTimeSeries(resourceLabels, legacyDiskBytesUsedMD, point)
 		ts.Metric.Labels = map[string]string{
 			"device_name": metric.Labels[core.LabelResourceID.Key],
+			"pvc_name": metric.Labels[core.LabelPVCName.Key],
 		}
 		return ts
 	case core.MetricFilesystemLimit.MetricDescriptor.Name:
@@ -454,6 +455,7 @@ func (sink *StackdriverSink) LegacyTranslateLabeledMetric(timestamp time.Time, l
 		ts := legacyCreateTimeSeries(resourceLabels, legacyDiskBytesTotalMD, point)
 		ts.Metric.Labels = map[string]string{
 			"device_name": metric.Labels[core.LabelResourceID.Key],
+			"pvc_name": metric.Labels[core.LabelPVCName.Key],
 		}
 		return ts
 	case core.MetricAcceleratorMemoryTotal.MetricDescriptor.Name:

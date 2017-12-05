@@ -158,7 +158,7 @@ func (this *summaryMetricsSource) decodeNodeStats(metrics map[string]*MetricSet,
 	this.decodeCPUStats(nodeMetrics, node.CPU)
 	this.decodeMemoryStats(nodeMetrics, node.Memory)
 	this.decodeNetworkStats(nodeMetrics, node.Network)
-	this.decodeFsStats(nodeMetrics, RootFsKey, node.Fs)
+	this.decodeFsStats(nodeMetrics, RootFsKey, node.Fs, nil)
 	metrics[NodeKey(node.NodeName)] = nodeMetrics
 
 	for _, container := range node.SystemContainers {
@@ -187,7 +187,7 @@ func (this *summaryMetricsSource) decodePodStats(metrics map[string]*MetricSet, 
 	this.decodeUptime(podMetrics, pod.StartTime.Time)
 	this.decodeNetworkStats(podMetrics, pod.Network)
 	for _, vol := range pod.VolumeStats {
-		this.decodeFsStats(podMetrics, VolumeResourcePrefix+vol.Name, &vol.FsStats)
+		this.decodeFsStats(podMetrics, VolumeResourcePrefix+vol.Name, &vol.FsStats, vol.PVCRef)
 	}
 	metrics[PodKey(ref.Namespace, ref.Name)] = podMetrics
 
@@ -227,8 +227,8 @@ func (this *summaryMetricsSource) decodeContainerStats(podLabels map[string]stri
 	this.decodeCPUStats(containerMetrics, container.CPU)
 	this.decodeMemoryStats(containerMetrics, container.Memory)
 	this.decodeAcceleratorStats(containerMetrics, container.Accelerators)
-	this.decodeFsStats(containerMetrics, RootFsKey, container.Rootfs)
-	this.decodeFsStats(containerMetrics, LogsKey, container.Logs)
+	this.decodeFsStats(containerMetrics, RootFsKey, container.Rootfs, nil)
+	this.decodeFsStats(containerMetrics, LogsKey, container.Logs, nil)
 	this.decodeUserDefinedMetrics(containerMetrics, container.UserDefinedMetrics)
 
 	return containerMetrics
@@ -291,13 +291,19 @@ func (this *summaryMetricsSource) decodeNetworkStats(metrics *MetricSet, network
 	this.addIntMetric(metrics, &MetricNetworkTxErrors, network.TxErrors)
 }
 
-func (this *summaryMetricsSource) decodeFsStats(metrics *MetricSet, fsKey string, fs *stats.FsStats) {
+func (this *summaryMetricsSource) decodeFsStats(metrics *MetricSet, fsKey string, fs *stats.FsStats, pvc *stats.PVCReference) {
 	if fs == nil {
 		glog.V(9).Infof("missing fs metrics!")
 		return
 	}
 
 	fsLabels := map[string]string{LabelResourceID.Key: fsKey}
+	if pvc == nil {
+		fsLabels[LabelPVCName.Key] = ""
+	} else {
+		fsLabels[LabelPVCName.Key] = pvc.Name
+	}
+
 	this.addLabeledIntMetric(metrics, &MetricFilesystemUsage, fsLabels, fs.UsedBytes)
 	this.addLabeledIntMetric(metrics, &MetricFilesystemLimit, fsLabels, fs.CapacityBytes)
 	this.addLabeledIntMetric(metrics, &MetricFilesystemAvailable, fsLabels, fs.AvailableBytes)

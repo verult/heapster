@@ -48,6 +48,10 @@ var (
 		Key:         "container_name",
 		Description: "User-provided name of the container or full container name for system containers",
 	}
+	LabelPVCName = LabelDescriptor{
+		Key:         "pvc_name",
+		Description: "The name of the PVC",
+	}
 	LabelLabels = LabelDescriptor{
 		Key:         "labels",
 		Description: "Comma-separated list of user-provided labels",
@@ -151,6 +155,7 @@ var acceleratorLabels = []LabelDescriptor{
 var gcmLabels = []LabelDescriptor{
 	LabelMetricSetType,
 	LabelPodName,
+	LabelPVCName,
 	LabelNamespaceName,
 	LabelHostname,
 	LabelHostID,

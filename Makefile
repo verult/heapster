@@ -1,5 +1,7 @@
 all: build
 
+PREFIX=gcr.io/cxing-gke-dev
+
 PREFIX?=gcr.io/google_containers
 FLAGS=
 ARCH?=amd64

@@ -20,8 +20,8 @@ spec:
       serviceAccountName: heapster
       containers:
       - name: heapster
-        image: gcr.io/google_containers/heapster-amd64:v1.4.0
-        imagePullPolicy: IfNotPresent
+        image: gcr.io/cxing-gke-dev/heapster-amd64:v1.5.0-beta.2
+        imagePullPolicy: Always
         command:
         - /heapster
         - --source=kubernetes:https://kubernetes.default
