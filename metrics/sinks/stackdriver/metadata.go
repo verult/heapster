@@ -155,6 +155,20 @@ var (
 		Name:       "kubernetes.io/node_daemon/memory/used_bytes",
 	}
 
+	// PVC metrics
+
+	pvcUsedBytesMD = &metricMetadata{
+		MetricKind: "GAUGE",
+		ValueType:  "INT64",
+		Name:       "kubernetes.io/pvc/used_bytes",
+	}
+
+	pvcTotalBytesMD = &metricMetadata{
+		MetricKind: "GAUGE",
+		ValueType:  "INT64",
+		Name:       "kubernetes.io/pvc/total_bytes",
+	}
+
 	// Old resource model metrics
 
 	legacyUptimeMD = &metricMetadata{

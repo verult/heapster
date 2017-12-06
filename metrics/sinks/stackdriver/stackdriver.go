@@ -573,6 +573,18 @@ func (sink *StackdriverSink) TranslateLabeledMetric(timestamp time.Time, labels 
 			}
 			return ts
 		}
+	case core.MetricSetTypePVC:
+		pvcLabels := sink.getPVCResourceLabels(labels)
+		switch metric.Name {
+		case core.MetricFilesystemUsage.MetricDescriptor.Name:
+			point := sink.intPoint(timestamp, timestamp, metric.MetricValue.IntValue)
+			ts := createTimeSeries("k8s_pvc", pvcLabels, pvcUsedBytesMD, point)
+			return ts
+		case core.MetricFilesystemLimit.MetricDescriptor.Name:
+			point := sink.intPoint(timestamp, timestamp, metric.MetricValue.IntValue)
+			ts := createTimeSeries("k8s_pvc", pvcLabels, pvcTotalBytesMD, point)
+			return ts
+		}
 	}
 	return nil
 }
@@ -748,6 +760,16 @@ func (sink *StackdriverSink) getNodeResourceLabels(labels map[string]string) map
 		"location":     sink.zone, // TODO(kawych): revisit how the location is set
 		"cluster_name": sink.cluster,
 		"node_name":    labels[core.LabelNodename.Key],
+	}
+}
+
+func (sink *StackdriverSink) getPVCResourceLabels(labels map[string]string) map[string]string {
+	return map[string]string{
+		"project_id":     sink.project,
+		"location":       sink.zone, // TODO(kawych): revisit how the location is set
+		"cluster_name":   sink.cluster,
+		"namespace_name": labels[core.LabelNamespaceName.Key],
+		"pvc_name":       labels[core.LabelPVCName.Key],
 	}
 }
 
